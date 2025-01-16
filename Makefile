@@ -2,19 +2,22 @@ include .env
 
 APP_NAME = upstat
 MIGRATIONS_DIR ?= $(PWD)/database/migrations/sqlite
-ifeq ($(DB_type), postgres)
+ifeq ($(DB_TYPE), postgres)
     MIGRATIONS_DIR = $(PWD)/database/migrations/postgres
-else ifeq ($(DB_type), sqlite)
+else ifeq ($(DB_TYPE), sqlite)
     MIGRATIONS_DIR = $(PWD)/database/migrations/sqlite
 endif
 
 export POSTGRES_DSN
 
+up:
+	docker compose up -d
+
 dev:
 	air
 
 build:
-	go build -o server main.go
+	cd ./backend/cmd && go build -o ../../server main.go
 
 clean:
 	rm -rf ./server
