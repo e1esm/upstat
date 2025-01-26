@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/chamanbravo/upstat/docs"
 	"github.com/chamanbravo/upstat/internal/database"
+	"github.com/chamanbravo/upstat/internal/repository"
 	"github.com/chamanbravo/upstat/pkg"
 
 	"github.com/chamanbravo/upstat/internal/routes"
@@ -27,9 +28,12 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 
-	if err := database.DBConnect(); err != nil {
+	db, err := database.DBConnect()
+	if err != nil {
 		log.Fatal("Could not connect to database", err)
 	}
+
+	_ = repository.New(db)
 
 	pkg.StartGoroutineSetup()
 

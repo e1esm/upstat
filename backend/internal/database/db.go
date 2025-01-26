@@ -10,32 +10,36 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-var DB *sql.DB
+var (
 
-//go:embed migrations/sqlite/*.sql
-var embedMigrationsSqlite embed.FS
+	//go:embed migrations/sqlite/*.sql
+	embedMigrationsSqlite embed.FS
 
-//go:embed migrations/postgres/*.sql
-var embedMigrationsPostgres embed.FS
+	//go:embed migrations/postgres/*.sql
+	embedMigrationsPostgres embed.FS
 
-func DBConnect() error {
+	postgres = "postgres"
+	sqlite   = "sqlite"
+)
+
+func DBConnect() (*sql.DB, error) {
+	var DB *sql.DB
+
 	dbType := os.Getenv("DB_TYPE")
 	if dbType == "" {
-		dbType = "sqlite"
+		dbType = sqlite
 	}
 	var err error
 
 	switch dbType {
-	case "postgres":
+	case postgres:
 		DB, err = PostgresConnection()
-	case "sqlite":
-		DB, err = SqliteConnection()
 	default:
 		DB, err = SqliteConnection()
 	}
 
 	if err != nil {
-		return fmt.Errorf("could not connect to database: %v", err)
+		return nil, fmt.Errorf("could not connect to database: %v", err)
 	}
 
 	if err = DB.Ping(); err != nil {
@@ -43,10 +47,8 @@ func DBConnect() error {
 	}
 
 	switch dbType {
-	case "postgres":
+	case postgres:
 		goose.SetBaseFS(embedMigrationsPostgres)
-	case "sqlite":
-		goose.SetBaseFS(embedMigrationsSqlite)
 	default:
 		goose.SetBaseFS(embedMigrationsSqlite)
 	}
@@ -60,5 +62,5 @@ func DBConnect() error {
 		panic(err)
 	}
 
-	return nil
+	return DB, nil
 }

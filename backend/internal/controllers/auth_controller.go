@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/chamanbravo/upstat/internal/dto"
-	"github.com/chamanbravo/upstat/internal/queries"
+	"github.com/chamanbravo/upstat/internal/repository"
 	"github.com/chamanbravo/upstat/pkg"
 	"github.com/gofiber/fiber/v2"
 )

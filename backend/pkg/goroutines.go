@@ -11,7 +11,7 @@ import (
 
 	"github.com/chamanbravo/upstat/internal/dto"
 	"github.com/chamanbravo/upstat/internal/models"
-	"github.com/chamanbravo/upstat/internal/queries"
+	"github.com/chamanbravo/upstat/internal/repository"
 	"github.com/chamanbravo/upstat/pkg/alerts"
 )
 
@@ -50,7 +50,7 @@ func StartGoroutine(monitor *models.Monitor) {
 				fmt.Printf("Goroutine with ID %d stopped by request\n", id)
 				return
 			default:
-				monitor, err := queries.FindMonitorById(id)
+				monitor, err := repository.FindMonitorById(id)
 				if err != nil {
 					log.Printf("Error retrieving updated monitor data: %v", err)
 					continue
@@ -58,7 +58,7 @@ func StartGoroutine(monitor *models.Monitor) {
 				if monitor.Status != "yellow" {
 					heartbeat := Ping(monitor)
 
-					incidents, err := queries.LatestIncidentByMonitorId(id)
+					incidents, err := repository.LatestIncidentByMonitorId(id)
 					if err != nil {
 						log.Printf("Error when trying to retrieve incident: %v", err.Error())
 					}
@@ -74,12 +74,12 @@ func StartGoroutine(monitor *models.Monitor) {
 							Type: incidentType, Description: heartbeat.Message, IsPositive: heartbeat.Status == "green", MonitorId: id,
 						}
 
-						err = queries.SaveIncident(newIncident)
+						err = repository.SaveIncident(newIncident)
 						if err != nil {
 							log.Printf("Error when trying to save incident: %v", err.Error())
 						}
 
-						notificationChannels, err := queries.FindNotificationChannelsByMonitorId(id)
+						notificationChannels, err := repository.FindNotificationChannelsByMonitorId(id)
 						if err != nil {
 							log.Printf("Error when trying to retrieve notificationChannels: %v", err.Error())
 						}
@@ -121,7 +121,7 @@ func StopGoroutine(id int) {
 }
 
 func StartGoroutineSetup() {
-	monitors, err := queries.RetrieveMonitors()
+	monitors, err := repository.RetrieveMonitors()
 	if err != nil {
 		log.Println("Error when trying to retrieve monitors")
 		log.Println(err.Error())

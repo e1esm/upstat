@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/chamanbravo/upstat/internal/models"
-	"github.com/chamanbravo/upstat/internal/queries"
+	"github.com/chamanbravo/upstat/internal/repository"
 )
 
 func Ping(monitor *models.Monitor) *models.Heartbeat {
@@ -23,7 +23,7 @@ func Ping(monitor *models.Monitor) *models.Heartbeat {
 		heartbeat.Message = "unable to ping"
 		heartbeat.Latency = 0
 		if monitor.Status != "red" {
-			err := queries.UpdateMonitorStatus(monitor.ID, "red")
+			err := repository.UpdateMonitorStatus(monitor.ID, "red")
 			if err != nil {
 				log.Printf("Error when trying to update monitor status: %v", err.Error())
 			}
@@ -37,14 +37,14 @@ func Ping(monitor *models.Monitor) *models.Heartbeat {
 		defer response.Body.Close()
 
 		if monitor.Status != "green" {
-			err := queries.UpdateMonitorStatus(monitor.ID, "green")
+			err := repository.UpdateMonitorStatus(monitor.ID, "green")
 			if err != nil {
 				log.Printf("Error when trying to update monitor status: %v", err.Error())
 			}
 		}
 	}
 	heartbeat.Timestamp = time.Now().UTC()
-	err = queries.SaveHeartbeat(heartbeat)
+	err = repository.SaveHeartbeat(heartbeat)
 	if err != nil {
 		log.Printf("Error when trying to save heartbeat: %v", err.Error())
 	}
