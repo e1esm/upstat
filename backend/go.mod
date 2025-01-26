@@ -1,6 +1,6 @@
 module github.com/chamanbravo/upstat
 
-go 1.21.0
+go 1.23.5
 
 require (
 	github.com/go-playground/validator/v10 v10.15.5
