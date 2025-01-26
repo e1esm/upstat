@@ -109,7 +109,7 @@ func (r *Repository) UpdateMonitorStatus(id int, status string) error {
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("%w: id was not found", svcerr.ErrNoMonitorsFound, id)
+		return fmt.Errorf("%w: id was not found: %d", svcerr.ErrNoMonitorsFound, id)
 	}
 
 	return nil

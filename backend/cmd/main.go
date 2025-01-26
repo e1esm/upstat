@@ -4,6 +4,8 @@ import (
 	"log"
 
 	_ "github.com/chamanbravo/upstat/docs"
+	appLayer "github.com/chamanbravo/upstat/internal/app"
+	controllers "github.com/chamanbravo/upstat/internal/controllers/rest"
 	"github.com/chamanbravo/upstat/internal/database"
 	"github.com/chamanbravo/upstat/internal/repository"
 	"github.com/chamanbravo/upstat/pkg"
@@ -33,16 +35,22 @@ func main() {
 		log.Fatal("Could not connect to database", err)
 	}
 
-	_ = repository.New(db)
+	repo := repository.New(db)
 
-	pkg.StartGoroutineSetup()
+	monitor := pkg.New(repo)
 
-	routes.AuthRoutes(app)
+	aLayer := appLayer.New(repo, monitor)
+
+	h := controllers.New(aLayer)
+
+	monitor.StartGoroutineSetup()
+
+	routes.AuthRoutes(app, h)
 	routes.SwaggerRoute(app)
-	routes.MonitorRoutes(app)
-	routes.UserRoutes(app)
-	routes.NotificationRoutes(app)
-	routes.StatusPagesRoutes(app)
+	routes.MonitorRoutes(app, h)
+	routes.UserRoutes(app, h)
+	routes.NotificationRoutes(app, h)
+	routes.StatusPagesRoutes(app, h)
 
 	log.Fatal(app.Listen(":8000"))
 }

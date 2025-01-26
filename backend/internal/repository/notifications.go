@@ -10,7 +10,7 @@ import (
 	"github.com/chamanbravo/upstat/svcerr"
 )
 
-func (r *Repository) reateNotificationChannel(nc *dto.NotificationCreateIn) error {
+func (r *Repository) CreateNotificationChannel(nc *dto.NotificationCreateIn) error {
 	stmt, err := r.db.Prepare("INSERT INTO notifications(name, provider, data) VALUES($1, $2, $3)")
 	if err != nil {
 		return err

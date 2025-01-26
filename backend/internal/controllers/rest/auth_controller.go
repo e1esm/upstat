@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/chamanbravo/upstat/internal/dto"
-	"github.com/chamanbravo/upstat/internal/repository"
 	"github.com/chamanbravo/upstat/pkg"
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,7 +16,7 @@ import (
 // @Success 200 {object} dto.UserSignInOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/auth/signup [post]
-func SignUp(c *fiber.Ctx) error {
+func (h *Handler) SignUp(c *fiber.Ctx) error {
 	user := new(dto.UserSignUp)
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -30,7 +29,7 @@ func SignUp(c *fiber.Ctx) error {
 		return c.Status(404).JSON(errors)
 	}
 
-	existingUser, err := queries.FindUserByUsernameAndEmail(user)
+	existingUser, err := h.app.FindUserByUsernameAndEmail(user)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -50,7 +49,7 @@ func SignUp(c *fiber.Ctx) error {
 	}
 
 	user.Password = hashedPassword
-	if err := queries.SaveUser(user); err != nil {
+	if err := h.app.SaveUser(user); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
@@ -95,7 +94,7 @@ func SignUp(c *fiber.Ctx) error {
 // @Success 200 {object} dto.UserSignInOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/auth/signin [post]
-func SignIn(c *fiber.Ctx) error {
+func (h *Handler) SignIn(c *fiber.Ctx) error {
 	user := new(dto.UserSignIn)
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -108,7 +107,7 @@ func SignIn(c *fiber.Ctx) error {
 		return c.Status(400).JSON(errors)
 	}
 
-	existingUser, err := queries.FindUserByUsername(user.Username)
+	existingUser, err := h.app.FindUserByUsername(user.Username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -162,7 +161,7 @@ func SignIn(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/auth/signout [post]
-func SignOut(c *fiber.Ctx) error {
+func (h *Handler) SignOut(c *fiber.Ctx) error {
 	c.ClearCookie("access_token")
 	c.ClearCookie("refresh_token")
 
