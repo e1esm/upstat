@@ -17,9 +17,8 @@ services:
 
   api:
     restart: unless-stopped
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    container_name: upstat-backend
+    image: upstat-backend:dev
     environment:
       - DB_TYPE=postgres
       - POSTGRES_DSN=postgres://postgres:postgres@db:5432/upstat?sslmode=disable
@@ -32,9 +31,7 @@ services:
 
   web:
     restart: unless-stopped
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+    image: upstat-frontend:dev
     ports:
       - "3000:3000"
     depends_on:

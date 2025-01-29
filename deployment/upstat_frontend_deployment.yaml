@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upstat-frontend
+spec:
+  selector:
+    matchLabels:
+      app: upstat-frontend
+  template:
+    metadata:
+      labels:
+        app: upstat-frontend
+    spec:
+      containers:
+      - name: upstat-frontend
+        image: upstat-frontend:dev
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
