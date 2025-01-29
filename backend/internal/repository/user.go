@@ -35,7 +35,7 @@ func (r *Repository) FindUserByUsernameAndEmail(u *dto.UserSignUp) (*models.User
 	result := stmt.QueryRow(u.Username, u.Email).Scan(&user.ID, &user.Username, &user.Email)
 	if result != nil {
 		if result == sql.ErrNoRows {
-			return nil, svcerr.ErrUserNotFound
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to scan rows for users: %w", err)
 	}
