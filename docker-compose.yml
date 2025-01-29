@@ -31,9 +31,7 @@ services:
 
   web:
     restart: unless-stopped
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+    image: upstat-frontend:dev
     ports:
       - "3000:3000"
     depends_on:
