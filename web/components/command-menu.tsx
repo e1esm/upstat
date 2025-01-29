@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 const menus = [
   {
     name: "Monitors",
-    path: "/",
+    path: "/monitors",
   },
   {
     name: "Notifications",

@@ -43,7 +43,7 @@ export default async function MonitorItem({ params, searchParams }: PageProps) {
           className="w-fit text-muted-foreground p-2 h-7"
           asChild
         >
-          <Link href="/">
+          <Link href="/monitors">
             <ChevronLeft className="h-4 w-4" />
             Monitors
           </Link>

@@ -14,7 +14,7 @@ interface Props {
 
 export default async function page({ params }: Props) {
   const { slug } = params;
-  if (!slug) return redirect("/");
+  if (!slug) return redirect("/monitors");
 
   const data = await fetchStatusPagesSummary(slug);
   if (!data) return null;
