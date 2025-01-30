@@ -80,7 +80,7 @@ export default function MonitorsForm({
         toast({ title: "Monitor created successfully." });
       }
       setLoading(false);
-      router.push("/");
+      router.push("/monitors");
       router.refresh();
     } catch (err) {
       toast({ title: "Monitor created successfully." });

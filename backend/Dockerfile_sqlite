@@ -1,11 +1,11 @@
 # Build stage
-FROM golang:1.21.3-alpine AS build
+FROM golang:1.23.5-alpine AS build
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY .. .
-RUN apk --no-cache add build-base sqlite-dev \
-    && CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN apk --no-cache add build-base sqlite-dev 
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/.
 
 # Release stage
 FROM alpine:latest AS release

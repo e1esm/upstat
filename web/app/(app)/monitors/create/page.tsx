@@ -23,7 +23,7 @@ export default async function CreteMonitor() {
           className="p-2 w-fit text-muted-foreground h-7"
           asChild
         >
-          <Link href="/">
+          <Link href="/monitors">
             <ChevronLeft className="w-4 h-4" />
             Monitor
           </Link>

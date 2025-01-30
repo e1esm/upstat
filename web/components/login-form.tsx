@@ -60,7 +60,7 @@ export default function LoginForm() {
 
       if (response.ok) {
         setLoading(false);
-        router.push("/");
+        router.push("/monitors");
       } else if (response.status === 400) {
         const data = await response.json();
         return toast({

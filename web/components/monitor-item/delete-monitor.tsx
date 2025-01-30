@@ -17,7 +17,7 @@ export default function DeleteMonitor({ id }: Props) {
       method: "DELETE",
     });
     if (response.ok) {
-      router.push("/");
+      router.push("/monitors");
       router.refresh();
     }
   };

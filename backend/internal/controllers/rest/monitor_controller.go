@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/chamanbravo/upstat/internal/dto"
-	"github.com/chamanbravo/upstat/internal/queries"
 	"github.com/chamanbravo/upstat/pkg"
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,7 +17,7 @@ import (
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors [post]
-func CreateMonitor(c *fiber.Ctx) error {
+func (h *Handler) CreateMonitor(c *fiber.Ctx) error {
 	newMonitor := new(dto.AddMonitorIn)
 	if err := c.BodyParser(newMonitor); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -31,28 +30,28 @@ func CreateMonitor(c *fiber.Ctx) error {
 		return c.Status(400).JSON(errors)
 	}
 
-	monitor, err := queries.CreateMonitor(newMonitor)
+	monitor, err := h.app.CreateMonitor(newMonitor)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	err = queries.NotificationMonitor(monitor.ID, newMonitor.NotificationChannels)
+	err = h.app.NotificationMonitor(monitor.ID, newMonitor.NotificationChannels)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	err = queries.StatusPageMonitor(monitor.ID, newMonitor.StatusPages)
+	err = h.app.StatusPageMonitor(monitor.ID, newMonitor.StatusPages)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	pkg.StartGoroutine(monitor)
+	h.app.StartMonitoringProcess(monitor)
 
 	return c.Status(200).JSON(fiber.Map{
 		"message": "success",
@@ -66,7 +65,7 @@ func CreateMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.MonitorInfoOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id} [get]
-func MonitorInfo(c *fiber.Ctx) error {
+func (h *Handler) MonitorInfo(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -81,7 +80,7 @@ func MonitorInfo(c *fiber.Ctx) error {
 		})
 	}
 
-	monitor, err := queries.FindMonitorById(id)
+	monitor, err := h.app.FindMonitorById(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -102,7 +101,7 @@ func MonitorInfo(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id} [patch]
-func UpdateMonitor(c *fiber.Ctx) error {
+func (h *Handler) UpdateMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -129,21 +128,21 @@ func UpdateMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	err = queries.UpdateMonitorById(id, monitor)
+	err = h.app.UpdateMonitorById(id, monitor)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	err = queries.UpdateNotificationMonitorById(id, monitor.NotificationChannels)
+	err = h.app.UpdateNotificationMonitorById(id, monitor.NotificationChannels)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	err = queries.UpdateStatusPageMonitorById(id, monitor.StatusPages)
+	err = h.app.UpdateStatusPageMonitorById(id, monitor.StatusPages)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -163,7 +162,7 @@ func UpdateMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/pause [patch]
-func PauseMonitor(c *fiber.Ctx) error {
+func (h *Handler) PauseMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -178,8 +177,8 @@ func PauseMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	pkg.StopGoroutine(int(id))
-	err = queries.UpdateMonitorStatus(id, "yellow")
+	h.app.StopMonitoringProcess(id)
+	err = h.app.UpdateMonitorStatus(id, "yellow")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -198,7 +197,7 @@ func PauseMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/resume [patch]
-func ResumeMonitor(c *fiber.Ctx) error {
+func (h *Handler) ResumeMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -213,15 +212,15 @@ func ResumeMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	monitor, err := queries.FindMonitorById(id)
+	monitor, err := h.app.FindMonitorById(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	pkg.StartGoroutine(monitor)
-	err = queries.UpdateMonitorStatus(id, "green")
+	h.app.StartMonitoringProcess(monitor)
+	err = h.app.UpdateMonitorStatus(id, "green")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -238,8 +237,8 @@ func ResumeMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.MonitorsListOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors [get]
-func MonitorsList(c *fiber.Ctx) error {
-	monitors, err := queries.RetrieveMonitors()
+func (h *Handler) MonitorsList(c *fiber.Ctx) error {
+	monitors, err := h.app.RetrieveMonitors()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -248,7 +247,7 @@ func MonitorsList(c *fiber.Ctx) error {
 
 	var monitorsList []fiber.Map
 	for _, v := range monitors {
-		heartbeat, err := queries.RetrieveHeartbeats(v.ID, 10)
+		heartbeat, err := h.app.RetrieveHeartbeats(v.ID, 10)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"message": err.Error(),
@@ -279,7 +278,7 @@ func MonitorsList(c *fiber.Ctx) error {
 // @Success 200 {object} dto.HeartbeatsOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/heartbeat [get]
-func RetrieveHeartbeat(c *fiber.Ctx) error {
+func (h *Handler) RetrieveHeartbeat(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -306,7 +305,7 @@ func RetrieveHeartbeat(c *fiber.Ctx) error {
 		return c.Status(400).JSON(errors)
 	}
 
-	heartbeat, err := queries.RetrieveHeartbeatsByTime(id, query.StartTime)
+	heartbeat, err := h.app.RetrieveHeartbeatsByTime(id, query.StartTime)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -323,7 +322,7 @@ func RetrieveHeartbeat(c *fiber.Ctx) error {
 // @Success 200 {object} dto.MonitorSummaryOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/summary [get]
-func MonitorSummary(c *fiber.Ctx) error {
+func (h *Handler) MonitorSummary(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -338,21 +337,21 @@ func MonitorSummary(c *fiber.Ctx) error {
 		})
 	}
 
-	averageLatency, err := queries.RetrieveAverageLatency(id, time.Now().Add(-time.Hour*24))
+	averageLatency, err := h.app.RetrieveAverageLatency(id, time.Now().Add(-time.Hour*24))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	dayUptime, err := queries.RetrieveUptime(id, time.Now().Add(-time.Hour*24))
+	dayUptime, err := h.app.RetrieveUptime(id, time.Now().Add(-time.Hour*24))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
-	monthUptime, err := queries.RetrieveUptime(id, time.Now().Add(-time.Hour*30*24))
+	monthUptime, err := h.app.RetrieveUptime(id, time.Now().Add(-time.Hour*30*24))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -376,7 +375,7 @@ func MonitorSummary(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id} [delete]
-func DeleteMonitor(c *fiber.Ctx) error {
+func (h *Handler) DeleteMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -391,8 +390,8 @@ func DeleteMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	pkg.StopGoroutine(id)
-	err = queries.DeleteMonitorById(id)
+	h.app.StopMonitoringProcess(id)
+	err = h.app.DeleteMonitorById(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -409,7 +408,7 @@ func DeleteMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.CertificateExpiryCountDown
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/cert-exp-countdown [get]
-func CertificateExpiryCountDown(c *fiber.Ctx) error {
+func (h *Handler) CertificateExpiryCountDown(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -424,7 +423,7 @@ func CertificateExpiryCountDown(c *fiber.Ctx) error {
 		})
 	}
 
-	monitor, err := queries.FindMonitorById(id)
+	monitor, err := h.app.FindMonitorById(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -456,7 +455,7 @@ func CertificateExpiryCountDown(c *fiber.Ctx) error {
 // @Success 200 {object} dto.NotificationListOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/notifications [get]
-func NotificationChannelListOfMonitor(c *fiber.Ctx) error {
+func (h *Handler) NotificationChannelListOfMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -471,7 +470,7 @@ func NotificationChannelListOfMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	notification, err := queries.FindNotificationChannelsByMonitorId(id)
+	notification, err := h.app.FindNotificationChannelsByMonitorId(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -491,7 +490,7 @@ func NotificationChannelListOfMonitor(c *fiber.Ctx) error {
 // @Success 200 {object} dto.ListStatusPagesOut
 // @Success 400 {object} dto.ErrorResponse
 // @Router /api/monitors/{id}/status-pages [get]
-func StatusPagesListOfMonitor(c *fiber.Ctx) error {
+func (h *Handler) StatusPagesListOfMonitor(c *fiber.Ctx) error {
 	idParam := c.Params("id")
 	if idParam == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -506,7 +505,7 @@ func StatusPagesListOfMonitor(c *fiber.Ctx) error {
 		})
 	}
 
-	statusPages, err := queries.FindStatusPageByMonitorId(id)
+	statusPages, err := h.app.FindStatusPageByMonitorId(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),

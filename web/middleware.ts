@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import { API_HOST } from "./lib/constants";
 
 const protectedRoutes = [
-  "/",
   "/monitors/",
   "/notifications/",
   "/status-pages/",

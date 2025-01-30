@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/chamanbravo/upstat/internal/queries"
 	"github.com/chamanbravo/upstat/pkg"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +14,7 @@ import (
 // @Success 200 {object} serializers.SuccessResponse
 // @Success 400 {object} serializers.ErrorResponse
 // @Router /api/auth/refresh-token [post]
-func RefreshToken(c *fiber.Ctx) error {
+func (h *Handler) RefreshToken(c *fiber.Ctx) error {
 	refreshToken := c.GetReqHeaders()["Refresh-Token"]
 	if len(refreshToken) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -33,7 +32,7 @@ func RefreshToken(c *fiber.Ctx) error {
 
 	username := payload.Username
 
-	existingUser, err := queries.FindUserByUsername(username)
+	existingUser, err := h.app.FindUserByUsername(username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal server error",

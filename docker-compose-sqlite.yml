@@ -2,7 +2,7 @@ version: "3.4"
 services:
   api:
     restart: unless-stopped
-    image: chamanbravo/upstat-api-sqlite:latest
+    image: upstat-backend:dev
     environment:
       - JWT_SECRET_KEY=asdfjaskljdaq123#!@810248)_+12
     volumes:
@@ -10,7 +10,7 @@ services:
 
   web:
     restart: unless-stopped
-    image: chamanbravo/upstat-web:latest
+    image: upstat-frontend:dev
     ports:
       - "3000:3000"
     depends_on:

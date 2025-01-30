@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: upstat-backend-config-map
+data:
+    JWT_SECRET_KEY: asdfjaskljdaq123#!@810248)_+12
+#    DB_TYPE: postgres
+#    POSTGRES_DSN: postgres://postgres:postgres@db:5432/upstat?sslmode=disable

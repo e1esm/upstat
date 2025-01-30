@@ -67,7 +67,7 @@ export default function RegisterForm() {
         toast({
           title: "Account Created",
         });
-        router.push("/");
+        router.push("/monitors");
       } else if (response.status === 400) {
         const data = await response.json();
         if (data?.message) {

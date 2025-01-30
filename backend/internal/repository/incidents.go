@@ -1,35 +1,31 @@
-package queries
+package repository
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
-	"github.com/chamanbravo/upstat/internal/database"
 	"github.com/chamanbravo/upstat/internal/dto"
 	"github.com/chamanbravo/upstat/internal/models"
+	"github.com/chamanbravo/upstat/svcerr"
 )
 
-func SaveIncident(incident *dto.SaveIncident) error {
-	stmt, err := database.DB.Prepare("INSERT INTO incidents(type, description, is_positive, monitor_id) VALUES($1, $2, $3, $4)")
+func (r *Repository) SaveIncident(incident *dto.SaveIncident) error {
+	stmt, err := r.db.Prepare("INSERT INTO incidents(type, description, is_positive, monitor_id) VALUES($1, $2, $3, $4)")
 	if err != nil {
-		log.Println("Error when trying to prepare statement")
-		log.Println(err)
 		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(incident.Type, incident.Description, incident.IsPositive, incident.MonitorId)
 	if err != nil {
-		log.Println("Error when trying to save incident.")
-		log.Println(err)
-		return err
+		return fmt.Errorf("failed to save incident: %w", err)
 	}
 
 	return nil
 }
 
-func LatestIncidentByMonitorId(id int) (*models.Incident, error) {
-	stmt, err := database.DB.Prepare(`
+func (r *Repository) LatestIncidentByMonitorId(id int) (*models.Incident, error) {
+	stmt, err := r.db.Prepare(`
     SELECT id, type, description, is_positive, monitor_id
     FROM incidents
     WHERE monitor_id = $1
@@ -37,7 +33,6 @@ func LatestIncidentByMonitorId(id int) (*models.Incident, error) {
     LIMIT 1;
     `)
 	if err != nil {
-		log.Printf("Error preparing statement: %v", err)
 		return nil, err
 	}
 	defer stmt.Close()
@@ -48,11 +43,9 @@ func LatestIncidentByMonitorId(id int) (*models.Incident, error) {
 	err = row.Scan(&incident.ID, &incident.Type, &incident.Description, &incident.IsPositive, &incident.MonitorId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Printf("No incident rows found. %v", err)
-			return nil, nil
+			return nil, svcerr.ErrNoIncidentsFound
 		}
-		log.Printf("Error scanning row: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("faield to scan rows of incidents: %w", err)
 	}
 
 	return &incident, nil

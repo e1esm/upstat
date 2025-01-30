@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upstat-backend
+spec:
+  selector:
+    matchLabels:
+      app: upstat-backend
+  template:
+    metadata:
+      labels:
+        app: upstat-backend
+    spec:
+      containers:
+      - name: upstat-backend
+        image: upstat-backend:dev
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: upstat-backend-config-map

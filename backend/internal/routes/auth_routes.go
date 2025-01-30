@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"github.com/chamanbravo/upstat/internal/controllers"
+	"github.com/chamanbravo/upstat/internal/controllers/rest"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // @Group Auth
-func AuthRoutes(app *fiber.App) {
+func AuthRoutes(app *fiber.App, h *controllers.Handler) {
 	route := app.Group("/api/auth")
 
-	route.Post("/signup", controllers.SignUp)
-	route.Post("/signin", controllers.SignIn)
-	route.Post("/signout", controllers.SignOut)
-	route.Post("/refresh-token", controllers.RefreshToken)
+	route.Post("/signup", h.SignUp)
+	route.Post("/signin", h.SignIn)
+	route.Post("/signout", h.SignOut)
+	route.Post("/refresh-token", h.RefreshToken)
 }

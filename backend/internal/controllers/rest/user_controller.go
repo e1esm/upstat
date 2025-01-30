@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/chamanbravo/upstat/internal/dto"
-	"github.com/chamanbravo/upstat/internal/queries"
 	"github.com/chamanbravo/upstat/pkg"
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,8 +11,8 @@ import (
 // @Success 200 {object} dto.NeedSetup
 // @Failure 400 {object} dto.ErrorResponse
 // @Router /api/users/setup [get]
-func Setup(c *fiber.Ctx) error {
-	usersCount, err := queries.UsersCount()
+func (h *Handler) Setup(c *fiber.Ctx) error {
+	usersCount, err := h.app.UsersCount()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
@@ -31,7 +30,7 @@ func Setup(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Router /api/users/update-password [post]
-func UpdatePassword(c *fiber.Ctx) error {
+func (h *Handler) UpdatePassword(c *fiber.Ctx) error {
 	updatePasswordBody := new(dto.UpdatePasswordIn)
 	if err := c.BodyParser(updatePasswordBody); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -46,7 +45,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 
 	username := c.Locals("username").(string)
 
-	user, err := queries.FindUserByUsername(username)
+	user, err := h.app.FindUserByUsername(username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal server error",
@@ -73,10 +72,10 @@ func UpdatePassword(c *fiber.Ctx) error {
 		})
 	}
 
-	err = queries.UpdatePassword(username, hashedNewPassword)
+	err = h.app.UpdatePassword(username, hashedNewPassword)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Internal server error",
+			"error":   fiber.ErrInternalServerError,
 			"message": err.Error(),
 		})
 	}
@@ -93,7 +92,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 // @Success 200 {object} dto.SuccessResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Router /api/users/me [patch]
-func UpdateAccount(c *fiber.Ctx) error {
+func (h *Handler) UpdateAccount(c *fiber.Ctx) error {
 	username := c.Locals("username").(string)
 	if username == "" {
 		return c.Status(400).JSON(fiber.Map{
@@ -114,10 +113,10 @@ func UpdateAccount(c *fiber.Ctx) error {
 		return c.Status(400).JSON(errors)
 	}
 
-	err := queries.UpdateAccount(username, updateAccountBody)
+	err := h.app.UpdateAccount(username, updateAccountBody)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   "Internal server error",
+			"error":   fiber.ErrInternalServerError,
 			"message": err.Error(),
 		})
 	}
