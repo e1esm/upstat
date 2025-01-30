@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: upstat-postgres-pvc
 spec:
-  storageClassName: upstat-postgres-storage
+  storageClassName: "local-storage"
   accessModes:
     - ReadWriteOnce
   resources:
