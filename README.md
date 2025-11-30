@@ -4,68 +4,68 @@
 
 # Upstat
 
-> simple and easy-to-use self-hosted status monitoring tool
+> Простой и удобный самодостаточный инструмент мониторинга статуса
 
 ![](./docs/assets/dashboard.png)
 
-## 💻 Live Demo
+## 💻 Живая демонстрация
 
-Try it.
+Попробуйте сами.
 
-Demo Server (Location: Singapore): [https://demo.upstat.com](https://upstat.chamanbudhathoki.com.np/)
+Демо-сервер (расположение: Сингапур): [https://demo.upstat.com](https://upstat.chamanbudhathoki.com.np/)
 
-Username: `demo`
-Password: `demodemo`
+Имя пользователя: `demo`
+Пароль: `demodemo`
 
-## ⭐ Features
+## ⭐ Возможности
 
-It needs more features but for now...
+Пока что функций не много, но вот текущий список:
 
-- Monitoring uptime for HTTP(s)
-- Status and Latency Chart
-- Notifications via Discord
-- 60-second intervals
-- Fancy, Reactive, Fast UI/UX
-- Multiple status pages
-- Map status pages to specific domains
-- Ping chart
-- Certificate info
-- PWA
-- Sqlite & Postgres database support
+- Мониторинг доступности HTTP(s)
+- Графики статуса и задержек
+- Уведомления через Discord
+- 60-секундные интервалы проверки
+- Красивый, реактивный и быстрый интерфейс
+- Несколько страниц статуса
+- Привязка страниц статуса к конкретным доменам
+- График пинга
+- Информация о сертификатах
+- PWA (Progressive Web App)
+- Поддержка баз данных Sqlite и Postgres
 
-And dozens of smaller features to be added.
+И десятки более мелких функций, которые будут добавлены.
 
-## 🔧 How to Install
+## 🔧 Установка
 
 ### 🐳 Docker
 
-For Sqlite
+Для Sqlite
 
 ```bash
 curl https://raw.githubusercontent.com/chamanbravo/upstat/main/docker-compose-sqlite.yml -o docker-compose.yml
 docker compose up
 ```
 
-For Postgres
+Для Postgres
 
 ```bash
 curl -O https://raw.githubusercontent.com/chamanbravo/upstat/main/docker-compose.yml
 docker compose up
 ```
 
-Upstat is now running on http://localhost:3000
+Upstat теперь работает по адресу http://localhost:3000
 
-> [!IMPORTANT]
-> Make sure to change the enviornment values before deploying.
+> [!ВАЖНО]
+> Не забудьте изменить значения переменных окружения перед развертыванием.
 
-### 💪🏻 Non-Docker
+### 💪🏻 Без Docker
 
-Requirements:
+Требования:
 
 - Node.js 14 / 16 / 18 / 20.4
 - npm 9
 - Golang 1.21+
-- Postgres (Optional)
+- Postgres (опционально)
 
 ```shell
 cp .sample.env .env
@@ -76,51 +76,42 @@ air
 cd web && npm run dev
 ```
 
-## Tech stack
+## Технологический стек
 
 - React
 - Shadcn
 - Golang
 - Postgres/Sqlite
 
-## 🙌 Contributing
+## 🙌 Участие в разработке
 
-I welcome contributions! Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Я приветствую contributions! Вклад в развитие - это то, что делает сообщество открытого исходного кода таким удивительным местом для обучения, вдохновения и творчества. Любой ваш вклад **чрезвычайно ценится**.
 
-If you have a suggestion that would make this better, please fork the repo, make changes and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+Если у вас есть предложение, как улучшить проект, пожалуйста, сделайте форк репозитория, внесите изменения и создайте pull request. Вы также можете просто открыть issue с тегом "enhancement".
+Не забудьте поставить звезду проекту! Заранее спасибо!
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Сделайте форк проекта
+2. Создайте ветку для вашей функции (`git checkout -b feature/AmazingFeature`)
+3. Зафиксируйте изменения (`git commit -m 'Add some AmazingFeature'`)
+4. Отправьте изменения в ветку (`git push origin feature/AmazingFeature`)
+5. Откройте Pull Request
 
-## Contributors
 
-<a href="https://github.com/chamanbravo/upstat/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=chamanbravo/upstat" />
-</a>
+## 🖼 Дополнительные скриншоты
 
-## 📄 License
-
-This project is licensed under the [MIT License](https://opensource.org/license/mit/).
-
-## 🖼 More Screenshots
-
-Create a Monitor
+Создание монитора
 
 <img src="./docs/assets/create.png" width="512" alt="" />
 
-Monitor Page
+Страница монитора
 
 <img src="./docs/assets/chart.png" width="512" alt="" />
 
-Settings Page
+Страница настроек
 
 <img src="./docs/assets/settings.png" width="512" alt="" />
 
-Notifications
+Уведомления
 
 <img src="./docs/assets/notifications.png" width="512" alt="" />
 
